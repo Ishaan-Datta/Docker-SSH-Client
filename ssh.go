@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"net"
-	"os"
-	"time"
+
+	"golang.org/x/crypto/ssh"
 )
 
 type SSHClient struct {
@@ -14,7 +13,8 @@ type SSHClient struct {
 
 func NewSSHClient(containerName string) (*SSHClient, error) {
 	// Retrieve Docker container's IP address
-	containerIP := getContainerIP(containerName)
+	// containerIP := getContainerIP(containerName)
+	containerIP := "bruh"
 	if containerIP == "" {
 		return nil, fmt.Errorf("could not find container: %s", containerName)
 	}
@@ -62,7 +62,7 @@ func (c *SSHClient) Close() {
 }
 
 // Mock function to retrieve the Docker container's IP address
-func getContainerIP(containerName string) string {
-	// Implement Docker API calls to get the IP address
-	return "172.17.0.2"
-}
+// func getContainerIP(containerName string) string {
+// 	// Implement Docker API calls to get the IP address
+// 	return "172.17.0.2"
+// }
