@@ -1,6 +1,6 @@
 // Package textinput provides functions that
 // help define and draw a text-input step
-package textinput
+package textInput
 
 import (
 	"errors"
@@ -10,7 +10,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/melkeydev/go-blueprint/cmd/program"
 )
 
 var (
@@ -33,7 +32,7 @@ func (o *Output) update(val string) {
 }
 
 // A textnput.model contains the data for the textinput step.
-//
+// 
 // It has the required methods that make it a bubbletea.Model
 type model struct {
 	textInput textinput.Model
@@ -54,7 +53,7 @@ func sanitizeInput(input string) error {
 
 // InitialTextInputModel initializes a textinput step
 // with the given data
-func InitialTextInputModel(output *Output, header string, program *program.Project) model {
+func InitialTextInputModel(output *Output, header string) model {
 	ti := textinput.New()
 	ti.Focus()
 	ti.CharLimit = 156
@@ -66,7 +65,6 @@ func InitialTextInputModel(output *Output, header string, program *program.Proje
 		err:       nil,
 		output:    output,
 		header:    titleStyle.Render(header),
-		exit:      &program.Exit,
 	}
 }
 
@@ -96,6 +94,7 @@ func (m model) Init() tea.Cmd {
 
 // Update is called when "things happen", it checks for the users text input,
 // and for Ctrl+C or Esc to close the program.
+// real-time callback to update method when you type anything on keyboard
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -124,6 +123,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View is called to draw the textinput step
+// renders what you are seeing (logic from textInput component)
 func (m model) View() string {
 	return fmt.Sprintf("%s\n\n%s\n\n",
 		m.header,

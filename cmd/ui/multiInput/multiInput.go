@@ -7,8 +7,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/melkeydev/go-blueprint/cmd/program"
-	"github.com/melkeydev/go-blueprint/cmd/steps"
 )
 
 // Change this
@@ -34,7 +32,7 @@ func (s *Selection) Update(value string) {
 // It has the required methods that make it a bubbletea.Model
 type model struct {
 	cursor   int
-	choices  []steps.Item
+	choices  []string
 	selected map[int]struct{}
 	choice   *Selection
 	header   string
@@ -47,13 +45,12 @@ func (m model) Init() tea.Cmd {
 
 // InitialModelMulti initializes a multiInput step with
 // the given data
-func InitialModelMulti(choices []steps.Item, selection *Selection, header string, program *program.Project) model {
+func InitialModelMulti(choices []string, selection *Selection, header string) model {
 	return model{
 		choices:  choices,
 		selected: make(map[int]struct{}),
 		choice:   selection,
 		header:   titleStyle.Render(header),
-		exit:     &program.Exit,
 	}
 }
 
@@ -87,10 +84,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "y":
 			if len(m.selected) == 1 {
-				for selectedKey := range m.selected {
-					m.choice.Update(m.choices[selectedKey].Title)
-					m.cursor = selectedKey
-				}
 				return m, tea.Quit
 			}
 		}
@@ -106,8 +99,6 @@ func (m model) View() string {
 		cursor := " "
 		if m.cursor == i {
 			cursor = focusedStyle.Render(">")
-			choice.Title = selectedItemStyle.Render(choice.Title)
-			choice.Desc = selectedItemDescStyle.Render(choice.Desc)
 		}
 
 		checked := " "
@@ -115,10 +106,8 @@ func (m model) View() string {
 			checked = focusedStyle.Render("x")
 		}
 
-		title := focusedStyle.Render(choice.Title)
-		description := descriptionStyle.Render(choice.Desc)
+		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
 
-		s += fmt.Sprintf("%s [%s] %s\n%s\n\n", cursor, checked, title, description)
 	}
 
 	s += fmt.Sprintf("Press %s to confirm choice.\n\n", focusedStyle.Render("y"))
