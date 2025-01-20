@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"SSH-Client/ui/containerDisplay"
+	"SSH-Client/ui/operationChoice"
 )
 
 var (
@@ -21,10 +21,7 @@ var (
 type Styles struct {
 	Base,
 	HeaderText,
-	Status,
-	StatusHeader,
 	Highlight,
-	ErrorHeaderText,
 	Help lipgloss.Style
 }
 
@@ -38,18 +35,8 @@ func NewStyles(lg *lipgloss.Renderer) *Styles {
 		Foreground(indigo).
 		Bold(true).
 		Padding(0, 1, 0, 2)
-	s.Status = lg.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(indigo).
-		PaddingLeft(1).
-		MarginTop(1)
-	s.StatusHeader = lg.NewStyle().
-		Foreground(green).
-		Bold(true)
 	s.Highlight = lg.NewStyle().
 		Foreground(lipgloss.Color("212"))
-	s.ErrorHeaderText = s.HeaderText.
-		Foreground(red)
 	s.Help = lg.NewStyle().
 		Foreground(lipgloss.Color("240"))
 	return &s
@@ -109,7 +96,6 @@ func NewModel() Model {
 	return m
 }
 
-// we never started that shit...
 func (m Model) Init() tea.Cmd {
     return m.form.Init()
 }
@@ -197,31 +183,64 @@ func updateSource(msg tea.Msg, m Model) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+type listOptions struct {
+	options []string
+}
+
+type Options struct {
+	Operation *operationChoice.Selection
+}
+
 func updateOperation(msg tea.Msg, m Model) (tea.Model, tea.Cmd) {
 	var option string
 
-	m.form = nil
+	// var selection operationChoice.Selection
 
-	m.form = huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-			Key("operation").
-			Title("Select the operation you would like to peform on the container(s):").
-			Options(
-				huh.NewOption("Log into a container", "Log into a container"), // docker exec
-				huh.NewOption("Send commands to container(s)", "Send commands to container(s)"), // binary ad hoc or script file
-				huh.NewOption("Push a local file to container(s)", "Push a local file to container(s)"), // file selector or text input, prompt to overwrite, progress bar/spinner
-				huh.NewOption("Pull a remote file from a container", "Pull a remote file from a container"), // file selector or text input, prompt to overwrite, file not found error
-				huh.NewOption("View available containers", "View available containers"), // 
-			).
-			Value(&option),
-		),
-	)
+	options := Options{
+		Operation: &operationChoice.Selection{},
+	}
 
-	err := m.form.Run()
-	if err != nil {
+	type listOptions struct{
+		options []string
+	}
+
+	listOfStuff := listOptions{
+		options: []string{
+			"Log into a container",
+			"Send commands to container(s)",
+			"Push a local file to container(s)",
+			"Pull a remote file from a container",
+			"View available containers",
+		},
+	}
+
+	model := operationChoice.InitialModelSelectionInput(listOfStuff.options, options.Operation, "Select the operation you would like to peform on the container(s):")
+
+	tprogram := tea.NewProgram(model, tea.WithAltScreen())
+	if _, err := tprogram.Run(); err != nil {
 		return m, tea.Quit
 	}
+
+	// m.form = huh.NewForm(
+	// 	huh.NewGroup(
+	// 		huh.NewSelect[string]().
+	// 		Key("operation").
+	// 		Title("Select the operation you would like to peform on the container(s):").
+	// 		Options(
+	// 			huh.NewOption("Log into a container", "Log into a container"), // docker exec
+	// 			huh.NewOption("Send commands to container(s)", "Send commands to container(s)"), // binary ad hoc or script file
+	// 			huh.NewOption("Push a local file to container(s)", "Push a local file to container(s)"), // file selector or text input, prompt to overwrite, progress bar/spinner
+	// 			huh.NewOption("Pull a remote file from a container", "Pull a remote file from a container"), // file selector or text input, prompt to overwrite, file not found error
+	// 			huh.NewOption("View available containers", "View available containers"), // 
+	// 		).
+	// 		Value(&option),
+	// 	),
+	// )
+
+	// err := m.form.Run()
+	// if err != nil {
+	// 	return m, tea.Quit
+	// }
 	m.operation = option
 
 	// check 
@@ -282,9 +301,49 @@ func main() {
 
 	// os.Exit(1)
 
-	_, err := tea.NewProgram(NewModel()).Run()
-	if err != nil {
-		fmt.Println("Oh no:", err)
-		os.Exit(1)
-	}
+	// _, err := tea.NewProgram(NewModel()).Run()
+	// if err != nil {
+	// 	fmt.Println("Oh no:", err)
+	// 	os.Exit(1)
+	// }
+
+	// var selection operationChoice.Selection
+
+	// options := Options{
+	// 	Operation: &operationChoice.Selection{},
+	// }
+
+	// type listOptions struct{
+	// 	options []string
+	// }
+
+	// listOfStuff := listOptions{
+	// 	options: []string{
+	// 		"Log into a container",
+	// 		"Send commands to container(s)",
+	// 		"Push a local file to container(s)",
+	// 		"Pull a remote file from a container",
+	// 		"View available containers",
+	// 	},
+	// }
+
+	// model := operationChoice.InitialModelSelectionInput(listOfStuff.options, options.Operation, "Select the operation you would like to peform on the container(s):")
+
+	// tprogram := tea.NewProgram(model)
+	// if _, err := tprogram.Run(); err != nil {
+	// 	os.Exit(1)
+	// }
+
+	// fmt.Print("bruh")
+
+	// tprogrammmm := tea.NewProgram(model, tea.WithInputTTY())
+
+	// // tprogrammmm.Send(tea.Msg())
+
+	// if _, err := tprogrammmm.Run(); err != nil {
+	// 	os.Exit(1)
+	// }
+
+	huh.NewInput().Run()
+	huh.NewInput().Run()
 }

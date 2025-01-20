@@ -11,7 +11,6 @@ require (
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/docker/docker v27.5.0+incompatible
 	github.com/melkeydev/go-blueprint v0.10.3
-	github.com/olekukonko/tablewriter v0.0.5
 )
 
 require (
