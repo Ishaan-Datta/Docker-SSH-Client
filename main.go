@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -307,43 +308,41 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	// var selection operationChoice.Selection
+	options := Options{
+		Operation: &operationChoice.Selection{},
+	}
 
-	// options := Options{
-	// 	Operation: &operationChoice.Selection{},
-	// }
+	type listOptions struct{
+		options []string
+	}
 
-	// type listOptions struct{
-	// 	options []string
-	// }
+	listOfStuff := listOptions{
+		options: []string{
+			"Log into a container",
+			"Send commands to container(s)",
+			"Push a local file to container(s)",
+			"Pull a remote file from a container",
+			"View available containers",
+		},
+	}
 
-	// listOfStuff := listOptions{
-	// 	options: []string{
-	// 		"Log into a container",
-	// 		"Send commands to container(s)",
-	// 		"Push a local file to container(s)",
-	// 		"Pull a remote file from a container",
-	// 		"View available containers",
-	// 	},
-	// }
+	model := operationChoice.InitialModelSelectionInput(listOfStuff.options, options.Operation, "Select the operation you would like to peform on the container(s):")
 
-	// model := operationChoice.InitialModelSelectionInput(listOfStuff.options, options.Operation, "Select the operation you would like to peform on the container(s):")
+	tprogram := tea.NewProgram(model, tea.WithAltScreen())
+	if _, err := tprogram.Run(); err != nil {
+		os.Exit(1)
+	}
 
-	// tprogram := tea.NewProgram(model)
-	// if _, err := tprogram.Run(); err != nil {
-	// 	os.Exit(1)
-	// }
+	fmt.Print("bruh")
 
-	// fmt.Print("bruh")
+	tprogram = tea.NewProgram(model, tea.WithAltScreen())
 
-	// tprogrammmm := tea.NewProgram(model, tea.WithInputTTY())
+	// tprogrammmm.Send(tea.Msg())
 
-	// // tprogrammmm.Send(tea.Msg())
+	if _, err := tprogram.Run(); err != nil {
+		os.Exit(1)
+	}
 
-	// if _, err := tprogrammmm.Run(); err != nil {
-	// 	os.Exit(1)
-	// }
-
-	huh.NewInput().Run()
-	huh.NewInput().Run()
+	// huh.NewInput().Run()
+	// huh.NewInput().Run()
 }
