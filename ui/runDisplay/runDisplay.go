@@ -20,8 +20,18 @@ package cmd
 
 // bubbles fancy list for container progress-> supposedly can update?
 
-//log progress in file
+// log progress in file
 
 // exitting: cancel progress w/ ctrl + c, cant move back to earlier step w/o completing or cancelling (cannot be running containers mid way)
 
 // for minimal verbosity, use send-msg example, just stream when containers are done
+
+// tabs for diff views?
+// better for side by side...
+// runbook and ad-hoc should be identical, except ad-hoc should have text entry to input commands on one "terminal"
+
+// composable views
+
+// composable views example for side-by-side, good to have both views for container script running together
+
+// feedback streaming: sendmsg, TUI daemon combo, realtime, package maanger

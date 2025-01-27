@@ -1,0 +1,36 @@
+[
+    {
+        "type": "local",
+        "host": "unix:///var/run/docker.sock",
+        "cert_path": "",
+        "tls_verify": "0",
+        "auth_method": "Kerberos",
+        "username": "username",
+        "password": "password",
+        "realm": "realm",
+        "kdc": "kdc"
+    },
+    {
+        "type": "remote",
+        "host": "tcp://192.168.1.100:2376",
+        "cert_path": "/path/to/certs",
+        "tls_verify": "1",
+        "auth_method": "SAML",
+        "idp_url": "https://idp.example.com",
+        "sp_entity_id": "https://sp.example.com",
+        "username": "username",
+        "password": "password"
+    },
+    {
+        "type": "remote",
+        "host": "tcp://192.168.1.999:8282",
+        "cert_path": "/path/to/certs",
+        "tls_verify": "1",
+        "auth_method": "OAuth2",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "token_url": "https://token.example.com",
+        "scopes": "read,write",
+        "refresh_token": "refresh_token"
+    }
+]

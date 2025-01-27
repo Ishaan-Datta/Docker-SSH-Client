@@ -1,9 +1,6 @@
-package operationChoice
+package sourceChoice
 
 import (
-	"fmt"
-	"os"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -136,48 +133,28 @@ func (m Model) View() string {
 }
 
 func RunForm() (string, string, error) {
-	// check json config
-	// docker engine running
 	// containers list isnt empty -> log containers based on type
 	model := NewModel()
 
 	_, err := tea.NewProgram(model, tea.WithAltScreen()).Run()
+	
 	if err != nil {
-		fmt.Println("Oh no:", err)
-		os.Exit(1)
+		return "", "error", err
+	}
+
+	if *model.exit {
+		return "", "error", err
 	}
 
 	formSource := model.form.GetBool("source")
-	fmt.Printf("formSource value: %v\n", formSource)
-	source := fmt.Sprintf("%v", formSource)
 
-	fmt.Printf("\n%v", *model.exit)
+	if formSource {
+		// verify remote config is valid
+		return "remote", "remote", nil
+	} else {
+		// verify local config is valid
+		return "local", "operation", nil
+	}
 
-	// if the source is remote, then trigger auth, else can do as normal
-
-	return source, "remote", nil
+	// no valid client configs found
 }
-
-// 	// m.form = huh.NewForm(
-// 	// 	huh.NewGroup(
-// 	// 		huh.NewSelect[string]().
-// 	// 		Key("operation").
-// 	// 		Title("Select the operation you would like to peform on the container(s):").
-// 	// 		Options(
-// 	// 			huh.NewOption("Log into a container", "Log into a container"), // docker exec
-// 	// 			huh.NewOption("Send commands to container(s)", "Send commands to container(s)"), // binary ad hoc or script file
-// 	// 			huh.NewOption("Push a local file to container(s)", "Push a local file to container(s)"), // file selector or text input, prompt to overwrite, progress bar/spinner
-// 	// 			huh.NewOption("Pull a remote file from a container", "Pull a remote file from a container"), // file selector or text input, prompt to overwrite, file not found error
-// 	// 			huh.NewOption("View available containers", "View available containers"), // 
-// 	// 		).
-// 	// 		Value(&option),
-// 	// 	),
-// 	// )
-
-// 	// err := m.form.Run()
-// 	// if err != nil {
-// 	// 	return m, tea.Quit
-// 	// }
-// 	m.operation = option
-
-// 	// check 

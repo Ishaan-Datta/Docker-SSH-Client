@@ -1,8 +1,9 @@
-package operationChoice
+package remoteChoice
 
 import (
 	"fmt"
-	"os"
+
+	"SSH-Client/utils"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
@@ -58,10 +59,10 @@ type Model struct {
 	form   *huh.Form
 	width  int
 	exit   *bool
-	// result bool
+	sources []string
 }
 
-func NewModel() Model {
+func NewModel(configList []string) Model {
 	m := Model{width: maxWidth}
 	m.lg = lipgloss.DefaultRenderer()
 	m.styles = NewStyles(m.lg)
@@ -70,12 +71,19 @@ func NewModel() Model {
 
 	m.form = huh.NewForm(
 		huh.NewGroup(
-			huh.NewConfirm().
-				Key("source").
-				Title("Would you like to connect to remote or local container(s)?").
-				Affirmative("Remote").
-				Negative("Local"),
-				// Value(&m.result),
+			huh.NewMultiSelect[string]().
+				Title("Remote Sources").
+				Key("sources").
+				Title("Choose the remote sources you would like to access").
+				Options(huh.NewOptions(configList...)...).
+				Validate(func(t []string) error {
+					if len(t) <= 0 {
+						return fmt.Errorf("at least one source is required")
+					}
+					return nil
+				}),
+				// Filterable(true).
+				// Value(&m.sources),
 		),
 	).
 	WithShowHelp(false).
@@ -105,7 +113,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			*m.exit = true
-			// os.Exit(1)
 			return m, tea.Quit
 		}
 	}
@@ -121,6 +128,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.form.State == huh.StateCompleted {
 		// Quit when the form is done.
+		// *m.sources = 
 		*m.exit = false
 		cmds = append(cmds, tea.Quit)
 	}
@@ -135,49 +143,26 @@ func (m Model) View() string {
 	return s
 }
 
-func RunForm() (string, string, error) {
-	// check json config
-	// docker engine running
-	// containers list isnt empty -> log containers based on type
-	model := NewModel()
-
-	_, err := tea.NewProgram(model, tea.WithAltScreen()).Run()
+func RunForm(configFilePath string) ([]string, string, error) {
+	configList, err := utils.RetrieveRemoteConfigurationNames(configFilePath)
 	if err != nil {
-		fmt.Println("Oh no:", err)
-		os.Exit(1)
+		return nil, "done", err
 	}
 
-	formSource := model.form.GetBool("source")
-	fmt.Printf("formSource value: %v\n", formSource)
-	source := fmt.Sprintf("%v", formSource)
+	model := NewModel(configList)
 
-	fmt.Printf("\n%v", *model.exit)
+	_, err = tea.NewProgram(model, tea.WithAltScreen()).Run()
+	if err != nil {
+		return nil, "done", err
+	}
 
-	// if the source is remote, then trigger auth, else can do as normal
+	if *model.exit {
+		return nil, "done", nil
+	}
 
-	return source, "remote", nil
+	if sources, ok := model.form.Get("sources").([]string); ok {
+		model.sources = sources
+	}
+
+	return model.sources, "authentication", nil
 }
-
-// 	// m.form = huh.NewForm(
-// 	// 	huh.NewGroup(
-// 	// 		huh.NewSelect[string]().
-// 	// 		Key("operation").
-// 	// 		Title("Select the operation you would like to peform on the container(s):").
-// 	// 		Options(
-// 	// 			huh.NewOption("Log into a container", "Log into a container"), // docker exec
-// 	// 			huh.NewOption("Send commands to container(s)", "Send commands to container(s)"), // binary ad hoc or script file
-// 	// 			huh.NewOption("Push a local file to container(s)", "Push a local file to container(s)"), // file selector or text input, prompt to overwrite, progress bar/spinner
-// 	// 			huh.NewOption("Pull a remote file from a container", "Pull a remote file from a container"), // file selector or text input, prompt to overwrite, file not found error
-// 	// 			huh.NewOption("View available containers", "View available containers"), // 
-// 	// 		).
-// 	// 		Value(&option),
-// 	// 	),
-// 	// )
-
-// 	// err := m.form.Run()
-// 	// if err != nil {
-// 	// 	return m, tea.Quit
-// 	// }
-// 	m.operation = option
-
-// 	// check 
