@@ -50,6 +50,7 @@ type Model struct {
 	state         string
 	succeeded     []authChoice.ConfigStatus
 	failed        []authChoice.ConfigStatus
+	// containers
 }
 
 func main() {
